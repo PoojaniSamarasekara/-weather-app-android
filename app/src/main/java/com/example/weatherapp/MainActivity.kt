@@ -1,11 +1,11 @@
 package com.example.weatherapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,10 +21,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContentView(R.layout.activity_main)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
             insets
         }
 
@@ -38,72 +45,125 @@ class MainActivity : AppCompatActivity() {
         val tvWind = findViewById<TextView>(R.id.tvWind)
 
         btnSearch.setOnClickListener {
+
             val city = etCityName.text.toString().trim()
+
+            // Task 08: Empty city validation
             if (city.isEmpty()) {
-                Toast.makeText(this, "Please enter a city name", Toast.LENGTH_SHORT).show()
+                clearResults(
+                    tvCity,
+                    tvTemp,
+                    tvCondition,
+                    tvHumidity,
+                    tvWind
+                )
+
+                tvStatus.text = "Please enter a city name"
+                tvStatus.visibility = View.VISIBLE
+
                 return@setOnClickListener
             }
 
             RetrofitClient.service.getWeather(city, API_KEY)
                 .enqueue(object : Callback<WeatherResponse> {
-                    override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
+
+                    // Task 07 + Task 08
+                    override fun onResponse(
+                        call: Call<WeatherResponse>,
+                        response: Response<WeatherResponse>
+                    ) {
+
                         if (response.isSuccessful && response.body() != null) {
+
+                            // Task 07: Get API data
                             val data = response.body()!!
-<<<<<<< HEAD
-=======
 
                             tvCity.text = data.name
                             tvTemp.text = "${data.main.temp}°C"
-                            tvCondition.text = data.weather.firstOrNull()?.description ?: "N/A"
-                            tvHumidity.text = "Humidity: ${data.main.humidity}%"
-                            tvWind.text = "Wind Speed: ${data.wind.speed} km/h"
+                            tvCondition.text =
+                                data.weather.firstOrNull()?.description ?: "N/A"
+                            tvHumidity.text =
+                                "Humidity: ${data.main.humidity}%"
+                            tvWind.text =
+                                "Wind Speed: ${data.wind.speed} km/h"
+
                             tvStatus.text = ""
->>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
                             tvStatus.visibility = View.GONE
-                            
-                            tvCity.text = data.name
-                            tvTemp.text = "${data.main.temp}°C"
-                            tvCondition.text = data.weather[0].description
-                            tvHumidity.text = "Humidity: ${data.main.humidity}%"
-                            tvWind.text = "Wind Speed: ${data.wind.speed} km/h"
-                        } else {
-<<<<<<< HEAD
-                            tvStatus.text = "City not found"
-=======
-                            val errorMsg = when (response.code()) {
-                                404 -> "City not found. Please check the name."
-                                401 -> "Invalid API Key."
-                                else -> "Error: ${response.code()}"
-                            }
-                            tvStatus.text = errorMsg
->>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
-                            tvStatus.visibility = View.VISIBLE
 
-                            // Clear previous data
-                            tvCity.text = ""
-                            tvTemp.text = ""
-                            tvCondition.text = ""
-                            tvHumidity.text = ""
-                            tvWind.text = ""
+                        } else {
+
+                            // Task 08: Clear old results
+                            clearResults(
+                                tvCity,
+                                tvTemp,
+                                tvCondition,
+                                tvHumidity,
+                                tvWind
+                            )
+
+                            // Invalid city
+                            if (response.code() == 404) {
+
+                                tvStatus.text =
+                                    "City not found. Please check the spelling."
+
+                            } else {
+
+                                // Generic API error
+                                tvStatus.text =
+                                    "Something went wrong. Please try again later."
+
+                                Log.e(
+                                    "WeatherAPI",
+                                    "API error: ${response.code()}"
+                                )
+                            }
+
+                            tvStatus.visibility = View.VISIBLE
                         }
                     }
 
-                    override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-<<<<<<< HEAD
-                        tvStatus.text = "Network error: ${t.message}"
-=======
-                        tvStatus.text = "Network Failure: ${t.message}"
->>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
+                    // Task 08: Network error
+                    override fun onFailure(
+                        call: Call<WeatherResponse>,
+                        t: Throwable
+                    ) {
+
+                        clearResults(
+                            tvCity,
+                            tvTemp,
+                            tvCondition,
+                            tvHumidity,
+                            tvWind
+                        )
+
+                        tvStatus.text =
+                            "Network error. Check your connection and try again."
+
                         tvStatus.visibility = View.VISIBLE
 
-                        // Clear previous data
-                        tvCity.text = ""
-                        tvTemp.text = ""
-                        tvCondition.text = ""
-                        tvHumidity.text = ""
-                        tvWind.text = ""
+                        Log.e(
+                            "WeatherAPI",
+                            "Network error",
+                            t
+                        )
                     }
                 })
         }
+    }
+
+    // Task 08: Clear previous weather results
+    private fun clearResults(
+        tvCity: TextView,
+        tvTemp: TextView,
+        tvCondition: TextView,
+        tvHumidity: TextView,
+        tvWind: TextView
+    ) {
+        tvCity.text = ""
+        tvTemp.text = ""
+        tvCondition.text = ""
+        tvHumidity.text = ""
+        tvWind.text = ""
     }
 }
