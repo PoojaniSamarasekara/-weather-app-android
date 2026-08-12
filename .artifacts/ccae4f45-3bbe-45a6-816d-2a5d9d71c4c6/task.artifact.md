@@ -1,0 +1,5 @@
+- [x] Initialize weather display views in `MainActivity`
+- [x] Implement success logic in `onResponse` (from user snippet)
+- [x] Implement error handling in `onResponse` (Task 08)
+- [x] Update `onFailure` with better error messaging
+- [x] Verify functionality

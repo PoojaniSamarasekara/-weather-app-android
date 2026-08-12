@@ -49,6 +49,16 @@ class MainActivity : AppCompatActivity() {
                     override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
                         if (response.isSuccessful && response.body() != null) {
                             val data = response.body()!!
+<<<<<<< HEAD
+=======
+
+                            tvCity.text = data.name
+                            tvTemp.text = "${data.main.temp}°C"
+                            tvCondition.text = data.weather.firstOrNull()?.description ?: "N/A"
+                            tvHumidity.text = "Humidity: ${data.main.humidity}%"
+                            tvWind.text = "Wind Speed: ${data.wind.speed} km/h"
+                            tvStatus.text = ""
+>>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
                             tvStatus.visibility = View.GONE
                             
                             tvCity.text = data.name
@@ -57,14 +67,41 @@ class MainActivity : AppCompatActivity() {
                             tvHumidity.text = "Humidity: ${data.main.humidity}%"
                             tvWind.text = "Wind Speed: ${data.wind.speed} km/h"
                         } else {
+<<<<<<< HEAD
                             tvStatus.text = "City not found"
+=======
+                            val errorMsg = when (response.code()) {
+                                404 -> "City not found. Please check the name."
+                                401 -> "Invalid API Key."
+                                else -> "Error: ${response.code()}"
+                            }
+                            tvStatus.text = errorMsg
+>>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
                             tvStatus.visibility = View.VISIBLE
+
+                            // Clear previous data
+                            tvCity.text = ""
+                            tvTemp.text = ""
+                            tvCondition.text = ""
+                            tvHumidity.text = ""
+                            tvWind.text = ""
                         }
                     }
 
                     override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+<<<<<<< HEAD
                         tvStatus.text = "Network error: ${t.message}"
+=======
+                        tvStatus.text = "Network Failure: ${t.message}"
+>>>>>>> 7aa6cbdc449b1baa113e5ee3d3433778c471f4c8
                         tvStatus.visibility = View.VISIBLE
+
+                        // Clear previous data
+                        tvCity.text = ""
+                        tvTemp.text = ""
+                        tvCondition.text = ""
+                        tvHumidity.text = ""
+                        tvWind.text = ""
                     }
                 })
         }
