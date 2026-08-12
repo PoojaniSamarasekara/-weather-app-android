@@ -31,3 +31,9 @@ Key fields used by the app:
 
 ## JSON Response — Error (404, invalid city)
 {"cod":"404","message":"city not found"}
+
+## Rate Limits
+Free tier allows 1,000 API calls per day and 60 calls per minute — more than enough for this app's testing needs.
+
+## Units Note
+Using units=metric returns temperature in Celsius. Omitting it returns Kelvin by default.
