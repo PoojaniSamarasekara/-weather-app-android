@@ -30,6 +30,11 @@ class MainActivity : AppCompatActivity() {
         val etCityName = findViewById<EditText>(R.id.etCityName)
         val btnSearch = findViewById<Button>(R.id.btnSearch)
         val tvStatus = findViewById<TextView>(R.id.tvStatus)
+        val tvCity = findViewById<TextView>(R.id.tvCity)
+        val tvTemp = findViewById<TextView>(R.id.tvTemp)
+        val tvCondition = findViewById<TextView>(R.id.tvCondition)
+        val tvHumidity = findViewById<TextView>(R.id.tvHumidity)
+        val tvWind = findViewById<TextView>(R.id.tvWind)
 
         btnSearch.setOnClickListener {
             val city = etCityName.text.toString().trim()
@@ -42,21 +47,44 @@ class MainActivity : AppCompatActivity() {
             RetrofitClient.service.getWeather(city, API_KEY)
                 .enqueue(object : Callback<WeatherResponse> {
                     override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
-                        if (response.isSuccessful) {
-                            val weather = response.body()
-                            // TODO: hand off to Member 4's display logic
+                        if (response.isSuccessful && response.body() != null) {
+                            val data = response.body()!!
+
+                            tvCity.text = data.name
+                            tvTemp.text = "${data.main.temp}°C"
+                            tvCondition.text = data.weather.firstOrNull()?.description ?: "N/A"
+                            tvHumidity.text = "Humidity: ${data.main.humidity}%"
+                            tvWind.text = "Wind Speed: ${data.wind.speed} km/h"
+                            tvStatus.text = ""
                             tvStatus.visibility = View.GONE
                         } else {
-                            // TODO: hand off to Member 4's error logic
-                            tvStatus.text = "Error: ${response.code()}"
+                            val errorMsg = when (response.code()) {
+                                404 -> "City not found. Please check the name."
+                                401 -> "Invalid API Key."
+                                else -> "Error: ${response.code()}"
+                            }
+                            tvStatus.text = errorMsg
                             tvStatus.visibility = View.VISIBLE
+
+                            // Clear previous data
+                            tvCity.text = ""
+                            tvTemp.text = ""
+                            tvCondition.text = ""
+                            tvHumidity.text = ""
+                            tvWind.text = ""
                         }
                     }
 
                     override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                        // network failure — hand off to Member 4's error handling
                         tvStatus.text = "Network Failure: ${t.message}"
                         tvStatus.visibility = View.VISIBLE
+
+                        // Clear previous data
+                        tvCity.text = ""
+                        tvTemp.text = ""
+                        tvCondition.text = ""
+                        tvHumidity.text = ""
+                        tvWind.text = ""
                     }
                 })
         }
